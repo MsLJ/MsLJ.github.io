@@ -79,7 +79,7 @@ theme_mode:
 cdn:
 
 # 사이드바 프로필 아바타 이미지 (나중에 이미지 올린 후 경로 지정 가능)
-avatar: '/assets/image/avatar.jpg'
+avatar: /assets/image/avatar.jpg
 
 # SEO용 소셜 미리보기 이미지
 social_preview_image: 
