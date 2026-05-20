@@ -88,23 +88,20 @@ social_preview_image:
 toc: true
 
 comments:
-  # 댓글 시스템 연동 (추후 설정 가능)
-  provider: 
-  disqus:
-    shortname: 
-  utterances:
-    repo: 
-    issue_term: 
+  # 댓글 시스템 활성화 (giscus 지정)
+  provider: giscus
+
+  # Giscus 세부 설정
   giscus:
-    repo: 
-    repo_id:
-    category:
-    category_id:
-    mapping: 
-    strict: 
-    input_position: 
-    lang: 
-    reactions_enabled: 
+    repo: MsLJ/MsLJ.github.io          # <내유저네임>/<저장소이름>
+    repo_id:                   # (※ 일단 비워두거나 아래 팁을 확인하세요)
+    category: Announcements            # 댓글이 생성될 깃허브 카테고리 지정
+    category_id:              # (※ 일단 비워두거나 아래 팁을 확인하세요)
+    mapping: pathname
+    strict: '0'
+    input_position: bottom
+    lang: ko                           # 댓글창 언어를 한국어로 설정
+    reactions_enabled: '1'             # 이모지 좋아요 기능 활성화
 
 # 자가 호스팅 정적 자산 설정
 assets:
