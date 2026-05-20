@@ -94,9 +94,9 @@ comments:
   # Giscus 세부 설정
   giscus:
     repo: MsLJ/MsLJ.github.io          # <내유저네임>/<저장소이름>
-    repo_id:                   # (※ 일단 비워두거나 아래 팁을 확인하세요)
+    repo_id: R_kgDOSig9QQ                  # (※ 일단 비워두거나 아래 팁을 확인하세요)
     category: Announcements            # 댓글이 생성될 깃허브 카테고리 지정
-    category_id:              # (※ 일단 비워두거나 아래 팁을 확인하세요)
+    category_id: DIC_kwDOSig9Qc4C9bvJ             # (※ 일단 비워두거나 아래 팁을 확인하세요)
     mapping: pathname
     strict: '0'
     input_position: bottom
