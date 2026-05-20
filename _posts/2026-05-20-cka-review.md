@@ -7,7 +7,7 @@ tags: [cka, kubernetes]
 
 안녕하세요. 
 첫 공부를 시작한 날로부터 약 4~5개월 정도의 기간이 지나 최종 합격하게 되었습니다. 
-![CKA 자격증](/assets/image/cka-cert.png){: .normal w="600" }
+<img src="/assets/img/cka-cert.png" width="600" style="display: block; margin: 0 auto;">
 제가 쿠버네티스를 공부해야겠다고 생각한 계기와 공부했던 구체적인 방법들을 공유하고자 글을 작성합니다. 준비하시는 분들께 작은 도움이 되었으면 합니다.
 
 ---
