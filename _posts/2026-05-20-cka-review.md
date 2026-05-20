@@ -3,6 +3,7 @@ title: 5개월 독학으로 취득한 CKA 합격 후기
 date: 2026-05-20 09:00:00 +0900
 categories: [Certification, Kubernetes]
 tags: [cka, kubernetes]
+permalink: /posts/cka-review/
 ---
 
 안녕하세요. 
