@@ -38,16 +38,19 @@ Docker는 컨테이너 내부 애플리케이션의 표준 출력(stdout/stderr)
 먼저 무의미하게 구동 중이던 컨테이너를 중지시켰습니다.
 ```bash
 docker stop <컨테이너_ID>
-② 컨테이너 완전 삭제를 통한 용량 확보
+```
+## ② 컨테이너 완전 삭제를 통한 용량 확보
 컨테이너를 삭제하면 해당 컨테이너와 연결되어 있던 고용량의 json.log 파일과 임시 레이어들이 한 번에 깔끔하게 날아갑니다.
 
-Bash
+```bash
 docker rm <컨테이너_ID>
+```
 💡 Tip. 종료된 모든 컨테이너 한 번에 지우기
 만약 멈춰 있는 안 쓰는 컨테이너가 너무 많다면 아래 명령어로 한 번에 정리할 수 있습니다.
 
-Bash
+```bash
 docker container prune
+```
 
 
 ---
@@ -61,15 +64,20 @@ docker container prune
 ```bash
 # 특정 컨테이너의 로그만 비우기
 truncate -s 0 /var/lib/docker/containers/컨테이너ID/*-json.log
+# tracecate 가 없다면 내용을 비워주는 cat /dev/null > 활용 가능
+cat /dev/null > /var/lib/docker/containers/컨테이너ID/*-json.log
+```
 
+```bash
 # 모든 컨테이너의 로그를 한 번에 비우기 (root 권한 필요)
 sudo sh -c "truncate -s 0 /var/lib/docker/containers/*/*-json.log"
+```
 4. 재발 방지를 위한 근본적인 해결책: Log Rotation 설정
 매번 디스크가 터질 때마다 수동으로 컨테이너를 지우거나 로그를 비울 수는 없습니다. Docker 자체 설정을 통해 로그 파일의 최대 크기를 제한하는 것이 가장 좋습니다.
 
 /etc/docker/daemon.json 파일을 열어(없으면 생성) 로그 로테이션 설정을 추가해 줍니다.
 
-JSON
+```json
 {
   "log-driver": "json-file",
   "log-opts": {
@@ -77,11 +85,12 @@ JSON
     "max-file": "3"
   }
 }
+```
 max-size: 로그 파일 한 개당 최대 크기 (예: 10MB)
 
 max-file: 보관할 로그 파일의 최대 개수 (예: 3개)
 
 이렇게 설정하면 로그가 10MB를 넘었을 때 오래된 로그를 지우며 순환하기 때문에, 하나의 컨테이너가 디스크를 전부 가득 채우는 불상사를 원천 차단할 수 있습니다. (설정 후 sudo systemctl restart docker로 도커 재시작 필요)
 
-맺음말
+## 4. 맺음말
 Docker 컨테이너는 편리하지만, 제대로 관리하지 않고 방치하면 json.log나 사용하지 않는 레이어들 때문에 서버가 쉽게 터질 수 있습니다. 주기적으로 docker ps -a로 컨테이너 상태를 점검하고, Log Rotation을 필수로 적용해 두는 습관이 중요한 것 같습니다.
