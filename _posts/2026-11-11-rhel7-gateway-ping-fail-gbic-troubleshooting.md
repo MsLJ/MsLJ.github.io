@@ -176,7 +176,38 @@ tcpdump -i eth0 arp or icmp -n
 
 - ARP Request가 계속 나가는데 Reply가 안 들어온다 → **서버→스위치 구간에서 프레임이 죽고 있다는 확정 증거.** 이 시점부터는 서버가 아니라 스위치/케이블/모듈을 봐야 합니다.
 
-### 4.7 스위치 쪽 확인 포인트
+### 4.7 전체 진단 흐름으로 정리하면
+
+위의 진단법들을 실전에서 쓸 수 있게 순서대로 정리하면 다음과 같은 흐름이 됩니다.
+
+```text
+1. ip link / ip addr / ip route   → 내 NIC 상태, IP, gw 설정 확인
+2. arping -c 3 -I eth0 <gw>       → L2 확인
+   ├─ 실패 → ip neigh 확인(FAILED) → 케이블/VLAN/스위치/gw 전원 순으로 확인
+   └─ 성공 → 3번으로
+3. ping <gw>                      → L3 확인
+   ├─ 실패 → 방화벽(ICMP), IP/서브넷 설정 확인
+   └─ 성공 → gw 너머(ping 외부IP), 이후 DNS 순으로 확인
+```
+
+여기서 핵심 도구는 **`arping`**입니다. 일반 ping은 ICMP(L3)라서 상대 방화벽에서 막혀 있어도 실패하지만, arping은 **ARP 요청을 직접 보내는 L2 테스트**라서 ICMP 차단 여부와 무관하게 "그 게이트웨이와 L2로 닿아 있는가"를 순수하게 확인할 수 있습니다.
+
+```bash
+arping -c 3 -I eth0 192.168.10.1
+# Unicast reply from ... ← L2 연결 정상
+# Timeout ← L2 단절 (이번 사례의 GBIC/케이블/스위치 구간 문제)
+```
+
+즉 이 흐름대로면:
+
+- **arping 실패 + `ip neigh`에 FAILED/INCOMPLETE** → L2 물리 구간 문제 → 케이블 → VLAN → 스위치(포트/모듈) → 게이트웨이 전원 순으로 확인
+- **arping 성공 + ping 실패** → L2는 살아 있으므로 L3 문제 → ICMP 차단(방화벽) 또는 IP/서브넷 설정 오류
+- **ping 게이트웨이 성공 + 외부 IP 실패** → 게이트웨이 너머 문제 → 라우팅/NAT/외부망 확인
+- **외부 IP는 되는데 도메인 안 됨** → DNS 문제
+
+이번 사례였다면 2번 `arping`에서 바로 실패가 떴을 것이고, GBIC/케이블 쪽을 훨씬 빨리 의심할 수 있었을 겁니다.
+
+### 4.8 스위치 쪽 확인 포인트
 
 스위치에 접근할 수 있다면:
 
@@ -197,9 +228,10 @@ tcpdump -i eth0 arp or icmp -n
 | 5 | 라우팅 | `netstat -rn` | 게이트웨이 유실 |
 | 6 | ping 에러 구분 | `ping <GW>` | Unreachable이면 L2 |
 | 7 | ARP | `ip neigh` | INCOMPLETE면 L2 |
-| 8 | 에러 카운터 | `ethtool -S`, `ip -s link` | 물리 신호 불량 |
-| 9 | 패킷 덤프 | `tcpdump -i eth0 arp` | 프레임 단절 확정 |
-| 10 | 물리 재장착 | 케이블/GBIC 재장착, 포트 변경 | 접촉 불량 |
+| 8 | L2 직접 테스트 | `arping -c 3 -I eth0 <GW>` | 실패면 케이블/VLAN/스위치/GW 전원 |
+| 9 | 에러 카운터 | `ethtool -S`, `ip -s link` | 물리 신호 불량 |
+| 10 | 패킷 덤프 | `tcpdump -i eth0 arp` | 프레임 단절 확정 |
+| 11 | 물리 재장착 | 케이블/GBIC 재장착, 포트 변경 | 접촉 불량 |
 
 ## 마치며
 
